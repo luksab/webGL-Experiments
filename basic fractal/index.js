@@ -31,8 +31,8 @@ function handleMouseOut(e) {
 }
 function handleMouseMove(e) {
     if (isDragging) {
-        moveX += (canMouseX - parseInt(e.clientX - offsetX)) / Math.pow(zoom, 4)*100.;
-        moveY += (canMouseY - parseInt(e.clientY - offsetY)) / Math.pow(zoom, 4)*100.;
+        moveX += (canMouseX - parseInt(e.clientX - offsetX)) / Math.pow(zoom, 4) * 100.;
+        moveY += (canMouseY - parseInt(e.clientY - offsetY)) / Math.pow(zoom, 4) * 100.;
     }
     canMouseX = parseInt(e.clientX - offsetX);
     canMouseY = parseInt(e.clientY - offsetY);
@@ -41,47 +41,22 @@ function handleMouseWheel(e) {
     zoom += e.deltaY / 530;
 }
 
-var gl,
-    program;
+var gl;
 var canvas;
 var t, screen_loc, move_loc, zoom_loc, screenQuadVBO;
+var mandelBrotShader;
 function setupWebGL(evt) {
     window.removeEventListener(evt.type, setupWebGL, false);
     if (!(gl = getRenderingContext()))
         return;
 
-    var source = document.querySelector("#vertex-shader").innerHTML;
-    var vertexShader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vertexShader, source);
-    gl.compileShader(vertexShader);
-    source = document.querySelector("#fragment-shader").innerHTML
-    var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fragmentShader, source);
-    gl.compileShader(fragmentShader);
-    program = gl.createProgram();
-    gl.attachShader(program, vertexShader);
-    console.log(gl.getShaderInfoLog(vertexShader));
-    gl.attachShader(program, fragmentShader);
-    console.log(gl.getShaderInfoLog(fragmentShader));
-    gl.linkProgram(program);
-    gl.detachShader(program, vertexShader);
-    gl.detachShader(program, fragmentShader);
-    gl.deleteShader(vertexShader);
-    gl.deleteShader(fragmentShader);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        var linkErrLog = gl.getProgramInfoLog(program);
-        cleanup();
-        document.querySelector("p").innerHTML =
-            "Shader program did not link successfully. "
-            + "Error log: " + linkErrLog;
-        return;
-    }
+    mandelBrotShader = new Shader("shaders/2d.vert", "shaders/mandelbrot.frag", gl);
     initializeAttributes();
-    gl.useProgram(program);
-    t = gl.getUniformLocation(program, "time");
-    screen_loc = gl.getUniformLocation(program, "screen");
-    move_loc = gl.getUniformLocation(program, "move");
-    zoom_loc = gl.getUniformLocation(program, "zoom");
+    t = gl.getUniformLocation(mandelBrotShader.program, "time");
+    screen_loc = gl.getUniformLocation(mandelBrotShader.program, "screen");
+    move_loc = gl.getUniformLocation(mandelBrotShader.program, "move");
+    zoom_loc = gl.getUniformLocation(mandelBrotShader.program, "zoom");
+    gl.useProgram(mandelBrotShader.program);
     gl.drawArrays(gl.POINTS, 0, 1);
     window.requestAnimationFrame(render);
     //cleanup();
@@ -130,7 +105,7 @@ function render() {
     gl.uniform2f(move_loc, moveX / canvasWidth, -moveY / canvasHeight);
     gl.uniform1f(zoom_loc, Math.pow(zoom, 2) / 10.);
     //gl.drawArrays(gl.POINTS, 0, 1);
-    renderQuad(program);
+    renderQuad(mandelBrotShader.program);
     window.requestAnimationFrame(render);
 }
 
@@ -147,8 +122,8 @@ function cleanup() {
     gl.useProgram(null);
     if (buffer)
         gl.deleteBuffer(buffer);
-    if (program)
-        gl.deleteProgram(program);
+    if (mandelBrotShader.program)
+        gl.deleteProgram(mandelBrotShader.program);
 }
 
 function getRenderingContext() {
@@ -163,14 +138,14 @@ function getRenderingContext() {
     canvas.addEventListener("mouseup", handleMouseUp);
     canvas.addEventListener("mouseout", handleMouseOut);
     canvas.addEventListener("wheel", handleMouseWheel);
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
+    canvas.width = canvas.clientWidth * 4;
+    canvas.height = canvas.clientHeight * 4;
     var gl = canvas.getContext("webgl")
         || canvas.getContext("experimental-webgl");
     if (!gl) {
         var paragraph = document.querySelector("p");
         paragraph.innerHTML = "Failed to get WebGL context."
-            + "Your browser or device does not support WebGL.";
+            + "Your browser or device may not support WebGL.";
         return null;
     }
     gl.viewport(0, 0,
