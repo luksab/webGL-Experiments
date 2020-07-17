@@ -1,3 +1,4 @@
+#define PI 3.1415926538
 precision highp float;
 uniform float time;
 uniform vec2 screen;
@@ -42,16 +43,29 @@ float fractal(vec2 cords){
             return float(i)/100.;
         }
     }
-    return 0.;
+    return length(z);
+}
+
+vec4 color(float c){
+    return vec4(sin(c*PI), sin(c*PI + 2.*PI/3.), sin(c*PI + 4.*PI/3.), 1.);
+}
+
+void fractalDraw(vec2 cords){
+    vec2 z = rek(vec2(0.,0.), cords);
+    for (int i = 0; i<500; i++){
+        z = rek(z, cords);
+        if(cmpxmag(z) > 5000.){
+            gl_FragColor = color(float(i)/10.);//vec4(float(i)/100., 0.5, 0.5, 1.0);
+            return;
+        }
+    }
+    gl_FragColor = vec4(0.,0.,0.,1.);//vec4(0.5, length(z), 0.5, 1.0);
+    return;
 }
 
 void main() {
     vec2 xy = vPos*screen/length(screen);
     xy /= zoom*zoom;
     xy += move;
-    float f = fractal(xy);
-  gl_FragColor = vec4(
-    f,
-    f,
-    f, 1.0 );
+    fractalDraw(xy);
 }

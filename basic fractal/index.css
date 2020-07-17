@@ -1,10 +1,11 @@
 body {
   text-align : center;
+  margin: 0px;
 }
 canvas {
   display : block;
-  width : 80vw;
-  height : 80vh;
+  width : 100vw;
+  height : 100vh;
   margin : auto;
   padding : 0;
   border : none;
