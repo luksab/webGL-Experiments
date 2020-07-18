@@ -5,7 +5,7 @@ class Shader {
     }
 
     use() {
-        this.gl.useProgram(this.shader);
+        this.gl.useProgram(this.program);
     }
 
     loadShaders(vertex, fragment){

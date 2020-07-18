@@ -62,13 +62,7 @@ function setupWebGL(evt) {
     //cleanup();
 }
 
-function renderQuad(shaderProgram) {
-
-    if (!shaderProgram) {
-        utils.warning("Missing the shader program!");
-        return;
-    }
-
+function renderQuad() {
     // Only created once
     if (screenQuadVBO == null) {
         var verts = [
@@ -105,7 +99,8 @@ function render() {
     gl.uniform2f(move_loc, moveX / canvasWidth, -moveY / canvasHeight);
     gl.uniform1f(zoom_loc, Math.pow(zoom, 2) / 10.);
     //gl.drawArrays(gl.POINTS, 0, 1);
-    renderQuad(mandelBrotShader.program);
+    mandelBrotShader.use();
+    renderQuad();
     window.requestAnimationFrame(render);
 }
 
