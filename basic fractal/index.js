@@ -96,7 +96,7 @@ function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.uniform1f(t, performance.now() / 1000.);
     gl.uniform2f(screen_loc, canvas.clientWidth, canvas.clientHeight);
-    gl.uniform2f(move_loc, moveX / canvasWidth, -moveY / canvasHeight);
+    gl.uniform2f(move_loc, moveX / canvasHeight, -moveY / canvasHeight);
     gl.uniform1f(zoom_loc, Math.pow(zoom, 2) / 10.);
     //gl.drawArrays(gl.POINTS, 0, 1);
     mandelBrotShader.use();
@@ -126,15 +126,15 @@ function getRenderingContext() {
 
     offsetX = canvas.offsetLeft;
     offsetY = canvas.offsetTop;
-    canvasWidth = canvas.width;
-    canvasHeight = canvas.height;
+    canvasWidth = canvas.clientWidth;
+    canvasHeight = canvas.clientHeight;
     canvas.addEventListener("mousedown", handleMouseDown);
     canvas.addEventListener("mousemove", handleMouseMove);
     canvas.addEventListener("mouseup", handleMouseUp);
     canvas.addEventListener("mouseout", handleMouseOut);
     canvas.addEventListener("wheel", handleMouseWheel);
-    canvas.width = canvas.clientWidth * 4;
-    canvas.height = canvas.clientHeight * 4;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
     var gl = canvas.getContext("webgl")
         || canvas.getContext("experimental-webgl");
     if (!gl) {
@@ -143,8 +143,8 @@ function getRenderingContext() {
             + "Your browser or device may not support WebGL.";
         return null;
     }
-    gl.viewport(0, 0,
-        gl.drawingBufferWidth, gl.drawingBufferHeight);
+    // gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     return gl;

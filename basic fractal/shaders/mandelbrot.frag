@@ -51,7 +51,7 @@ vec4 color(float c){
 }
 
 void fractalDraw(vec2 cords){
-    vec2 z = rek(vec2(0.,0.), cords);
+    vec2 z = rek(vec2(cos(time/4.)/4.,sin(time/4.)/4.), cords);
     for (int i = 0; i<500; i++){
         z = rek(z, cords);
         if(cmpxmag(z) > 5000.){
@@ -59,7 +59,7 @@ void fractalDraw(vec2 cords){
             return;
         }
     }
-    gl_FragColor = vec4(0.,0.,0.,1.);//vec4(0.5, length(z), 0.5, 1.0);
+    gl_FragColor = vec4(length(z),length(z),length(z),1.);//vec4(0.5, length(z), 0.5, 1.0);
     return;
 }
 
